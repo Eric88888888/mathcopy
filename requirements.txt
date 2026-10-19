@@ -1,0 +1,4 @@
+pywebview==6.2.1
+pythonnet==3.2.1
+bottle==0.13.4
+pyinstaller==6.22.3

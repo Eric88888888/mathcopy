@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>数学符号复制器 · MathCopy</title>
+  <link rel="stylesheet" href="vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="windowbar pywebview-drag-region" id="windowbar" role="toolbar" aria-label="窗口标题栏">
+    <div class="windowbar-left pywebview-drag-region">
+      <span class="windowbar-mark">∑</span>
+      <span class="windowbar-title">数学符号复制器</span>
+      <span class="windowbar-sep"></span>
+      <span class="windowbar-hint">MathCopy · Local</span>
+    </div>
+    <div class="window-controls">
+      <button class="window-btn" id="winMin" type="button" title="最小化" aria-label="最小化">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8"></path></svg>
+      </button>
+      <button class="window-btn" id="winMax" type="button" title="最大化" aria-label="最大化">
+        <svg class="icon-max" viewBox="0 0 12 12" aria-hidden="true"><rect x="2.4" y="2.4" width="7.2" height="7.2" rx="0.7"></rect></svg>
+        <svg class="icon-restore" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 4h5v5H4z"></path><path d="M3 3h5v1H3zM3 3v5h1V3z" fill="currentColor" stroke="none"></path></svg>
+      </button>
+      <button class="window-btn window-close" id="winClose" type="button" title="关闭" aria-label="关闭">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 2.5 7 7M9.5 2.5l-7 7"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="ambient" aria-hidden="true">
+    <span class="glow glow-a"></span>
+    <span class="glow glow-b"></span>
+    <span class="glow glow-c"></span>
+    <span class="grid-noise"></span>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="brand" id="brandBtn" type="button" aria-label="返回全部符号">
+        <span class="brand-mark" aria-hidden="true">
+          <span class="brand-glyph">∑</span>
+          <i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-name">MathCopy</span>
+          <span class="brand-sub">数学符号复制器</span>
+        </span>
+      </button>
+
+      <nav class="topnav" aria-label="主导航">
+        <button class="nav-link is-active" type="button" data-action="library">符号库</button>
+        <button class="nav-link" type="button" data-action="favorites">
+          收藏<span class="nav-count" id="navFavCount">0</span>
+        </button>
+        <button class="nav-link" type="button" data-action="recent">最近复制</button>
+        <button class="nav-link" type="button" data-action="shortcuts">快捷键</button>
+      </nav>
+
+      <div class="top-actions">
+        <label class="search" for="searchInput">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"></circle>
+            <path d="m16 16 4.5 4.5"></path>
+          </svg>
+          <input id="searchInput" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="搜索符号、名称或 Unicode" aria-label="搜索符号">
+          <kbd class="search-kbd">Ctrl K</kbd>
+          <button class="search-clear" id="searchClear" type="button" aria-label="清空搜索" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </label>
+        <span class="offline-pill" title="所有数据与功能均在本机运行">
+          <i></i>本地离线
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero" aria-labelledby="pageTitle">
+      <h1 id="pageTitle">数学符号大全 <span class="title-divider">|</span> 常用数学符号表</h1>
+      <p class="hero-desc">
+        算术、关系、集合、微积分、逻辑、线性代数…… 常用数学符号一网打尽。
+        点击卡片即可复制，完全离线，随取随用。
+      </p>
+      <div class="hero-meta">
+        <span><b id="heroSymbolCount">333</b> 个符号</span>
+        <span class="meta-sep"></span>
+        <span><b id="heroCategoryCount">11</b> 个分类</span>
+        <span class="meta-sep"></span>
+        <span>已复制 <b id="heroCopiedCount">0</b> 次</span>
+      </div>
+    </section>
+
+    <section class="category-section" aria-label="符号分类">
+      <div class="category-pills" id="categoryPills"></div>
+      <button class="latex-card" id="latexBtn" type="button">
+        <span class="latex-icon" aria-hidden="true">✏️</span>
+        <span class="latex-copy">
+          <b>LaTeX 公式编辑器</b>
+          <small>实时预览 · 命令转公式 · 一键复制</small>
+        </span>
+        <span class="latex-arrow" aria-hidden="true">→</span>
+      </button>
+    </section>
+
+    <section class="library" aria-labelledby="resultHeading">
+      <div class="library-head">
+        <div class="result-block">
+          <div class="result-title-row">
+            <h2 id="resultHeading">全部符号</h2>
+            <button class="info-dot" id="categoryInfo" type="button" aria-label="分类说明">i</button>
+            <span class="result-count"><b id="resultCount">50</b> 个结果</span>
+          </div>
+          <p id="categoryIntro" class="sr-only">精选 50 个最常用的数学符号。选择上方分类可查看完整清单。</p>
+        </div>
+        <div class="library-tools">
+          <button class="tool-chip" id="favoritesToggle" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.7 6.3.8-4.6 4.3 1.2 6.2-5.6-3.1-5.6 3.1 1.2-6.2L3 9.5l6.3-.8L12 3Z"></path></svg>
+            只看收藏
+          </button>
+          <button class="tool-chip" id="resetFilters" type="button" hidden>重置筛选</button>
+        </div>
+      </div>
+
+      <div class="symbol-grid" id="symbolGrid" role="list"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-icon" aria-hidden="true">∅</div>
+        <h3>没有找到匹配的符号</h3>
+        <p>试试符号本身、中文名称，或 Unicode 编码，例如 <button type="button" class="inline-example" data-query="2211">2211</button>。</p>
+        <button class="primary-btn" id="emptyReset" type="button">清空筛选</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-brand">
+        <span class="footer-glyph">∑</span>
+        <span>MathCopy · 本地数学符号复制器</span>
+      </div>
+      <p>数据整理自 <span class="footer-src">SymbolDb 数学符号页</span>，仅在本机运行，不上传任何内容。</p>
+      <p class="footer-tip">点击复制 · 右键查看详情 · 按 <kbd>F</kbd> 收藏</p>
+      <span class="footer-version">v1.0.0</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-check" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"></path></svg>
+    </span>
+    <span class="toast-symbol" id="toastSymbol">∑</span>
+    <span class="toast-copy"><b id="toastTitle">已复制</b><small id="toastSub">求和符号</small></span>
+  </div>
+
+  <div class="overlay" id="overlay" hidden></div>
+
+  <section class="modal detail-modal" id="detailModal" role="dialog" aria-modal="true"
+           aria-labelledby="detailName" hidden>
+    <button class="modal-close" type="button" data-close aria-label="关闭详情">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+    </button>
+    <div class="detail-layout">
+      <div class="detail-preview">
+        <span class="detail-symbol" id="detailSymbol">∑</span>
+        <span class="detail-category" id="detailCategory">算术运算符号</span>
+      </div>
+      <div class="detail-body">
+        <p class="detail-kicker">SYMBOL DETAILS</p>
+        <h2 id="detailName">求和符号</h2>
+        <p class="detail-desc">点击下方按钮复制符号，或复制它的 LaTeX 命令。</p>
+
+        <dl class="detail-grid">
+          <div>
+            <dt>Unicode</dt>
+            <dd><button type="button" class="copy-value" id="detailUnicode" data-copy-value="U+2211">U+2211</button></dd>
+          </div>
+          <div>
+            <dt>HTML 实体</dt>
+            <dd><button type="button" class="copy-value" id="detailEntity" data-copy-value="&#x2211;">&amp;#x2211;</button></dd>
+          </div>
+          <div>
+            <dt>UTF-8</dt>
+            <dd><button type="button" class="copy-value" id="detailUtf8" data-copy-value="E2 88 91">E2 88 91</button></dd>
+          </div>
+          <div>
+            <dt>LaTeX</dt>
+            <dd><button type="button" class="copy-value" id="detailLatex" data-copy-value="\sum">\sum</button></dd>
+          </div>
+        </dl>
+
+        <div class="detail-actions">
+          <button class="primary-btn" type="button" id="detailCopyBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+            复制符号
+          </button>
+          <button class="ghost-btn" type="button" id="detailLatexBtn">复制 LaTeX</button>
+          <button class="ghost-btn fav-detail-btn" type="button" id="detailFavBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.7 6.3.8-4.6 4.3 1.2 6.2-5.6-3.1-5.6 3.1 1.2-6.2L3 9.5l6.3-.8L12 3Z"></path></svg>
+            <span>收藏</span>
+          </button>
+        </div>
+        <button class="link-btn" type="button" id="detailGoCategory">在分类中查看 →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal latex-modal" id="latexModal" role="dialog" aria-modal="true"
+           aria-labelledby="latexTitle" hidden>
+    <button class="modal-close" type="button" data-close aria-label="关闭编辑器">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+    </button>
+    <header class="modal-head">
+      <p class="detail-kicker">LATEX PLAYGROUND</p>
+      <h2 id="latexTitle">LaTeX 公式编辑器</h2>
+      <p>输入 LaTeX，右侧实时预览。公式完全在本机渲染，不会发送到网络。</p>
+    </header>
+    <div class="latex-layout">
+      <div class="latex-editor">
+        <div class="editor-bar">
+          <span>LATEX</span>
+          <button type="button" id="latexClear">清空</button>
+        </div>
+        <textarea id="latexInput" spellcheck="false" aria-label="LaTeX 输入">\sum_{i=1}^{n} i = \frac{n(n+1)}{2}</textarea>
+        <div class="latex-palette" id="latexPalette">
+          <button type="button" data-insert="\frac{}{}">\frac</button>
+          <button type="button" data-insert="\sqrt{}">\sqrt</button>
+          <button type="button" data-insert="\sum_{}^{}">\sum</button>
+          <button type="button" data-insert="\int_{}^{}">\int</button>
+          <button type="button" data-insert="\alpha">\alpha</button>
+          <button type="button" data-insert="\rightarrow">\to</button>
+          <button type="button" data-insert="\begin{pmatrix} & \\ & \end{pmatrix}">matrix</button>
+        </div>
+      </div>
+      <div class="latex-preview-wrap">
+        <div class="editor-bar"><span>PREVIEW</span><span class="preview-status" id="latexStatus">实时渲染</span></div>
+        <div class="latex-preview" id="latexPreview"></div>
+        <p class="latex-error" id="latexError" hidden></p>
+      </div>
+    </div>
+    <footer class="latex-footer">
+      <span>支持 KaTeX 语法 · 公式仅在本机渲染</span>
+      <div>
+        <button class="ghost-btn" type="button" id="latexReset">恢复示例</button>
+        <button class="primary-btn" type="button" id="latexCopy">复制 LaTeX</button>
+      </div>
+    </footer>
+  </section>
+
+  <aside class="drawer" id="recentDrawer" role="dialog" aria-modal="true" aria-labelledby="recentTitle" hidden>
+    <header class="drawer-head">
+      <div>
+        <p class="detail-kicker">HISTORY</p>
+        <h2 id="recentTitle">最近复制</h2>
+      </div>
+      <button class="modal-close drawer-close" type="button" data-close aria-label="关闭最近复制">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+      </button>
+    </header>
+    <div class="drawer-list" id="recentList"></div>
+    <footer class="drawer-footer">
+      <button class="ghost-btn danger" type="button" id="clearRecent">清空记录</button>
+      <span>最多保留 24 条</span>
+    </footer>
+  </aside>
+
+  <section class="modal shortcuts-modal" id="shortcutsModal" role="dialog" aria-modal="true"
+           aria-labelledby="shortcutsTitle" hidden>
+    <button class="modal-close" type="button" data-close aria-label="关闭快捷键">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+    </button>
+    <p class="detail-kicker">KEYBOARD</p>
+    <h2 id="shortcutsTitle">快捷键</h2>
+    <div class="shortcut-list">
+      <div><span>聚焦搜索</span><span><kbd>Ctrl</kbd><kbd>K</kbd> 或 <kbd>/</kbd></span></div>
+      <div><span>复制搜索结果第一项</span><span><kbd>Enter</kbd></span></div>
+      <div><span>收藏当前符号</span><span><kbd>F</kbd></span></div>
+      <div><span>查看符号详情</span><span><kbd>I</kbd> 或右键</span></div>
+      <div><span>关闭弹窗 / 清空搜索</span><span><kbd>Esc</kbd></span></div>
+    </div>
+    <p class="shortcut-note">提示：选中卡片后也可以直接按 <kbd>Enter</kbd> 复制。</p>
+  </section>
+
+  <div class="resize-handles" aria-hidden="true">
+    <span class="resize-handle rh-n" data-resize="top"></span>
+    <span class="resize-handle rh-s" data-resize="bottom"></span>
+    <span class="resize-handle rh-w" data-resize="left"></span>
+    <span class="resize-handle rh-e" data-resize="right"></span>
+    <span class="resize-handle rh-nw" data-resize="top_left"></span>
+    <span class="resize-handle rh-ne" data-resize="top_right"></span>
+    <span class="resize-handle rh-sw" data-resize="bottom_left"></span>
+    <span class="resize-handle rh-se" data-resize="bottom_right"></span>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="vendor/katex/katex.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
